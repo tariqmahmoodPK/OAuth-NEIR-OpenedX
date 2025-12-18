@@ -1,12 +1,13 @@
-from third_party_auth.provider import BaseOAuth2Provider, Registry
-from openedx.core.djangoapps.third_party_auth.provider import (
-    BaseOAuth2ProviderConfig
+from common.djangoapps.third_party_auth.provider import (
+    BaseOAuth2Provider,
+    Registry,
+    BaseOAuth2ProviderConfig,
 )
 
 
-# 1️⃣ REAL PROVIDER (this creates the login button)
+# 1️⃣ REAL PROVIDER (creates login button)
 class NEIRProvider(BaseOAuth2Provider):
-    id = "neir"
+    id = "oa2-neir"
     name = "NEIR"
 
     def get_display_name(self, request):
@@ -18,11 +19,11 @@ class NEIRProvider(BaseOAuth2Provider):
 
 # 2️⃣ PROVIDER CONFIG (used by Django admin)
 class NEIRProviderConfig(BaseOAuth2ProviderConfig):
-    provider_id = "neir"
+    provider_id = "oa2-neir"
     backend_name = "neir"
     verbose_name = "NEIR"
     description = "Login using NEIR SSO"
 
 
-# 3️⃣ CRITICAL: register provider at import time
+# 3️⃣ Register provider at import time (CRITICAL)
 Registry.register(NEIRProvider)
