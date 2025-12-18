@@ -1,3 +1,40 @@
+from social_core.backends.oauth import BaseOAuth2
+
+
+class NEIROAuth2(BaseOAuth2):
+    name = "neir"
+
+    def authorization_url(self):
+        return self.setting("AUTHORIZATION_URL")
+
+    def access_token_url(self):
+        return self.setting("ACCESS_TOKEN_URL")
+
+    def user_data(self, access_token, *args, **kwargs):
+        url = self.setting("USERINFO_URL")
+        return self.get_json(
+            url,
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+
+    def get_user_details(self, response):
+        name = (response.get("name") or "").strip()
+        parts = name.split(" ", 1) if name else ["", ""]
+
+        sub = response.get("sub")
+        email = response.get("email")
+
+        return {
+            "username": sub or email or "",
+            "email": email or "",
+            "fullname": name,
+            "first_name": parts[0],
+            "last_name": parts[1] if len(parts) > 1 else "",
+        }
+
+
+
+'''
 import requests
 from social_core.backends.oauth import BaseOAuth2
 from social_core.exceptions import AuthFailed
@@ -83,3 +120,5 @@ class NEIROAuth2(BaseOAuth2):
     def get_user_id(self, details, response):
         # stable unique id for linking
         return response.get("sub") or details.get("username")
+
+        '''
