@@ -1,3 +1,4 @@
+'''
 from common.djangoapps.third_party_auth.provider import (
     BaseOAuth2Provider,
     Registry,
@@ -29,3 +30,5 @@ class NEIRProviderConfig(BaseOAuth2ProviderConfig):
 
 # CRITICAL: register provider at import time
 Registry.register(NEIRProvider)
+
+'''
