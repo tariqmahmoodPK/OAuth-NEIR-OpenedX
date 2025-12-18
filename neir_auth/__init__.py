@@ -1,4 +1,4 @@
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 # Ensure provider.py is imported at startup so the provider is registered
 default_app_config = "neir_auth.provider"
