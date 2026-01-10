@@ -33,7 +33,6 @@ class NEIROAuth2(BaseOAuth2):
         email = response.get("email")
 
         return {
-            "username": sub or email or "",
             "email": email or "",
             "fullname": name,
             "first_name": parts[0],
