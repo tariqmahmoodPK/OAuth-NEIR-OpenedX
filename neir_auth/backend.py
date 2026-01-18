@@ -25,28 +25,29 @@ class NEIROAuth2(BaseOAuth2):
             url,
             headers={"Authorization": f"Bearer {access_token}"},
         )
+
     def get_user_details(self, response):
-    """
-    Open edX–safe user mapping for NEIR
-    """
-    email = (response.get("email") or "").strip().lower()
-    sub = (response.get("sub") or "").strip()
-    name = (response.get("name") or "").strip()
+        """
+        Open edX–safe user mapping for NEIR
+        """
+        email = (response.get("email") or "").strip().lower()
+        sub = (response.get("sub") or "").strip()
+        name = (response.get("name") or "").strip()
 
-    # REQUIRED: username must NOT be numeric-only
-    username = f"neir_{sub}" if sub else ""
+        # REQUIRED: username must NOT be numeric-only
+        username = f"neir_{sub}" if sub else ""
 
-    first_name = ""
-    last_name = ""
-    if name:
-        parts = name.split(" ", 1)
-        first_name = parts[0]
-        last_name = parts[1] if len(parts) > 1 else ""
+        first_name = ""
+        last_name = ""
+        if name:
+            parts = name.split(" ", 1)
+            first_name = parts[0]
+            last_name = parts[1] if len(parts) > 1 else ""
 
-    return {
-        "username": username,
-        "email": email,
-        "fullname": name,
-        "first_name": first_name,
-        "last_name": last_name,
-    }
+        return {
+            "username": username,
+            "email": email,
+            "fullname": name,
+            "first_name": first_name,
+            "last_name": last_name,
+        }
