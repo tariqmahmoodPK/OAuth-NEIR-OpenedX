@@ -15,11 +15,7 @@ class NEIROAuth2(BaseOAuth2):
         return self.setting("ACCESS_TOKEN_URL")
 
     def get_user_id(self, details, response):
-        """
-        CRITICAL:
-        This value becomes UserSocialAuth.uid
-        Must be stable and non-empty
-        """
+        # CRITICAL: This value becomes UserSocialAuth.uid -Must be stable and non-empty
         sub = response.get("sub")
         if not sub:
             raise AuthFailed(self, "NEIR response missing 'sub'")
@@ -36,9 +32,7 @@ class NEIROAuth2(BaseOAuth2):
         )
 
     def get_user_details(self, response):
-        """
-        Open edX–safe user mapping
-        """
+        # Open edX–safe user mapping 
         email = (response.get("email") or "").strip().lower()
         sub = (response.get("sub") or "").strip()
         name = (response.get("name") or "").strip()
