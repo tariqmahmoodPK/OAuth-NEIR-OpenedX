@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="neir-auth",
-    version="0.1.11",
+    version="0.1.12",
     packages=find_packages(),
     include_package_data=True,
     entry_points={
