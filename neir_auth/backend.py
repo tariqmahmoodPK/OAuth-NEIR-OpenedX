@@ -1,15 +1,37 @@
+import logging
+
 from social_core.backends.oauth import BaseOAuth2
 from social_core.exceptions import AuthFailed
-import logging
 
 log = logging.getLogger(__name__)
 
 
 class NEIROAuth2(BaseOAuth2):
+    """
+    NEIR OAuth2 / OIDC-ish backend for Open edX (Tutor/Teak).
+
+    Required settings (in LMS settings):
+      SOCIAL_AUTH_NEIR_AUTHORIZATION_URL
+      SOCIAL_AUTH_NEIR_ACCESS_TOKEN_URL
+      SOCIAL_AUTH_NEIR_USERINFO_URL
+      SOCIAL_AUTH_NEIR_KEY
+      SOCIAL_AUTH_NEIR_SECRET
+    """
+
     name = "neir"
 
     DEFAULT_SCOPE = ["openid", "email", "profile"]
     SCOPE_SEPARATOR = " "
+
+    # Be explicit for compatibility
+    ACCESS_TOKEN_METHOD = "POST"
+
+    # Persist useful fields into social-auth extra_data
+    EXTRA_DATA = [
+        ("sub", "sub"),
+        ("email", "email"),
+        ("name", "name"),
+    ]
 
     def authorization_url(self):
         return self.setting("AUTHORIZATION_URL")
@@ -18,6 +40,9 @@ class NEIROAuth2(BaseOAuth2):
         return self.setting("ACCESS_TOKEN_URL")
 
     def get_user_id(self, details, response):
+        """
+        Value becomes UserSocialAuth.uid - must be stable and non-empty.
+        """
         log.error("NEIR get_user_id response=%s", response)
 
         sub = response.get("sub")
@@ -26,10 +51,13 @@ class NEIROAuth2(BaseOAuth2):
         return str(sub)
 
     def user_data(self, access_token, *args, **kwargs):
+        """
+        Fetch user claims from NEIR userinfo endpoint.
+        """
         url = self.setting("USERINFO_URL")
         log.error("NEIR userinfo URL=%s", url)
 
-        response = self.get_json(
+        data = self.get_json(
             url,
             headers={
                 "Authorization": f"Bearer {access_token}",
@@ -37,10 +65,13 @@ class NEIROAuth2(BaseOAuth2):
             },
         )
 
-        log.error("NEIR userinfo raw response=%s", response)
-        return response
+        log.error("NEIR userinfo raw response=%s", data)
+        return data
 
     def get_user_details(self, response):
+        """
+        Map NEIR claims → Open edX user fields.
+        """
         log.error("NEIR get_user_details response=%s", response)
 
         email = (response.get("email") or "").strip().lower()
@@ -52,6 +83,7 @@ class NEIROAuth2(BaseOAuth2):
         if not email:
             raise AuthFailed(self, "NEIR userinfo missing 'email'")
 
+        # IMPORTANT: username must not be numeric-only
         username = f"neir_{sub}"
 
         first_name = ""
