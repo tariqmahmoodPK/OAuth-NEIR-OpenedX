@@ -1,5 +1,8 @@
 from social_core.backends.oauth import BaseOAuth2
 from social_core.exceptions import AuthFailed
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class NEIROAuth2(BaseOAuth2):
@@ -15,7 +18,8 @@ class NEIROAuth2(BaseOAuth2):
         return self.setting("ACCESS_TOKEN_URL")
 
     def get_user_id(self, details, response):
-        # CRITICAL: This value becomes UserSocialAuth.uid -Must be stable and non-empty
+        log.error("NEIR get_user_id response=%s", response)
+
         sub = response.get("sub")
         if not sub:
             raise AuthFailed(self, "NEIR response missing 'sub'")
@@ -23,7 +27,9 @@ class NEIROAuth2(BaseOAuth2):
 
     def user_data(self, access_token, *args, **kwargs):
         url = self.setting("USERINFO_URL")
-        return self.get_json(
+        log.error("NEIR userinfo URL=%s", url)
+
+        response = self.get_json(
             url,
             headers={
                 "Authorization": f"Bearer {access_token}",
@@ -31,8 +37,12 @@ class NEIROAuth2(BaseOAuth2):
             },
         )
 
+        log.error("NEIR userinfo raw response=%s", response)
+        return response
+
     def get_user_details(self, response):
-        # Open edX–safe user mapping 
+        log.error("NEIR get_user_details response=%s", response)
+
         email = (response.get("email") or "").strip().lower()
         sub = (response.get("sub") or "").strip()
         name = (response.get("name") or "").strip()
@@ -42,7 +52,6 @@ class NEIROAuth2(BaseOAuth2):
         if not email:
             raise AuthFailed(self, "NEIR userinfo missing 'email'")
 
-        # IMPORTANT: username must NOT be numeric-only
         username = f"neir_{sub}"
 
         first_name = ""
