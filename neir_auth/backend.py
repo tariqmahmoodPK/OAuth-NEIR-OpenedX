@@ -34,22 +34,22 @@ class NEIROAuth2(BaseOAuth2):
     ]
 
     def request_access_token(self, url, data, headers, *args, **kwargs):
-        """
-        FORCE token exchange to use POST with form-encoded body.
-        social-auth otherwise sends GET (even if ACCESS_TOKEN_METHOD=POST).
-        """
-        log.error("NEIR token request URL=%s", url)
-        log.error("NEIR token request DATA=%s", data)
+    log.error("NEIR token request URL=%s", url)
+    log.error("NEIR token request DATA=%s", data)
 
-        return self.request(
-            url,
-            method="POST",
-            data=data,
-            headers={
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Accept": "application/json",
-            },
-        )
+    data = data.copy()
+    data["client_id"] = self.key
+    data["client_secret"] = self.secret
+
+    return self.request(
+        url,
+        method="POST",
+        data=data,
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+        },
+    )
         
     def authorization_url(self):
         return self.setting("AUTHORIZATION_URL")
